@@ -7,7 +7,7 @@ namespace Yorozu
 	public abstract class PartsControlAbstract : MonoBehaviour
 	{
 		[SerializeField]
-		private PartsAbstract[] _parts = new PartsAbstract[0];
+		protected PartsAbstract[] _parts = new PartsAbstract[0];
 
 		/// <summary>
 		/// 制御できる class
