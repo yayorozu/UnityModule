@@ -12,7 +12,10 @@ namespace Yorozu
 		/// <summary>
 		/// 制御できる class
 		/// </summary>
-		public abstract Type PartsType();
+		public virtual Type PartsType()
+		{
+			return null;
+		}
 
 		/// <summary>
 		/// Initialize

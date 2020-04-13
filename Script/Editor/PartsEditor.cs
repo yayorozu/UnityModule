@@ -8,7 +8,11 @@ using UnityEngine;
 namespace Yorozu
 {
 	[CustomEditor(typeof(PartsControlAbstract), true)]
-	public class PartsEditor : Editor
+	public class PartsEditor : PartsEditorAbstract<PartsAbstract>
+	{
+	}
+
+	public abstract class PartsEditorAbstract<T> : Editor where T : PartsAbstract
 	{
 		private PartsControlAbstract _parts;
 		private Type[] _types;
@@ -19,6 +23,8 @@ namespace Yorozu
 		{
 			public PartsAbstract Component;
 			public int Index;
+
+			private Type _type;
 			private Editor _editor;
 			private float _height;
 			public bool HasComponent => Component != null;
@@ -26,6 +32,7 @@ namespace Yorozu
 
 			public TypeInfo(Type type, PartsAbstract component)
 			{
+				_type = type;
 				Component = component;
 				var method = type.GetMethod("DrawEditor", BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
 				if (method == null)
@@ -36,9 +43,10 @@ namespace Yorozu
 
 			public void SetComponent(PartsAbstract component)
 			{
+				// Addした際にコンポーネントある場合もあるのでその対応
+				DestroyImmediate(Component, true);
 				if (component == null)
 				{
-					DestroyImmediate(Component, true);
 					Index = -1;
 					DestroyImmediate(_editor);
 				}
@@ -82,10 +90,14 @@ namespace Yorozu
 		{
 			_parts = target as PartsControlAbstract;
 
+			var partsType = _parts.PartsType();
+			if (partsType == null)
+				partsType = typeof(T);
+
 			// 必要タイプを取得
 			_types = Assembly.Load(Const.ASSEMBLY_PATH)
 				.GetTypes()
-				.Where(t => t.IsSubclassOf(_parts.PartsType()))
+				.Where(t => !t.IsAbstract && t.IsSubclassOf(partsType))
 				.ToArray();
 
 			_partsProperty = serializedObject.FindProperty("_parts");
