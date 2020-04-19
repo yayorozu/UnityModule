@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Yorozu.Sample
 {
-	public class SamplePartsRotate : SamplePartsAbstract
+	public class SampleModuleRotate : SampleModuleAbstract
 	{
 		[SerializeField]
 		private float _speed;

@@ -1,6 +1,6 @@
 ﻿namespace Yorozu.Sample
 {
-	public class SamplePartsControl : PartsControlAbstract
+	public class SampleModuleControl : ModuleControlAbstract
 	{
 		private void Awake()
 		{

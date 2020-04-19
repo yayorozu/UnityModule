@@ -7,21 +7,21 @@ using UnityEngine;
 
 namespace Yorozu
 {
-	[CustomEditor(typeof(PartsControlAbstract), true)]
-	public class PartsEditor : PartsEditorAbstract<PartsAbstract>
+	[CustomEditor(typeof(ModuleControlAbstract), true)]
+	public class ModuleEditor : ModuleEditorAbstract<ModuleAbstract>
 	{
 	}
 
-	public abstract class PartsEditorAbstract<T> : Editor where T : PartsAbstract
+	public abstract class ModuleEditorAbstract<T> : Editor where T : ModuleAbstract
 	{
-		private PartsControlAbstract _parts;
+		private ModuleControlAbstract _module;
 		private Type[] _types;
-		private SerializedProperty _partsProperty;
+		private SerializedProperty _moduleProperty;
 		private Dictionary<Type, TypeInfo> _componentInfos;
 
 		private class TypeInfo
 		{
-			public PartsAbstract Component;
+			public ModuleAbstract Component;
 			public int Index;
 
 			private Type _type;
@@ -30,7 +30,7 @@ namespace Yorozu
 			public bool HasComponent => Component != null;
 			public readonly bool IsOverrideMethod;
 
-			public TypeInfo(Type type, PartsAbstract component)
+			public TypeInfo(Type type, ModuleAbstract component)
 			{
 				_type = type;
 				Component = component;
@@ -41,7 +41,7 @@ namespace Yorozu
 					IsOverrideMethod = method == method.GetBaseDefinition();
 			}
 
-			public void SetComponent(PartsAbstract component)
+			public void SetComponent(ModuleAbstract component)
 			{
 				// Addした際にコンポーネントある場合もあるのでその対応
 				DestroyImmediate(Component, true);
@@ -88,9 +88,9 @@ namespace Yorozu
 
 		protected void OnEnable()
 		{
-			_parts = target as PartsControlAbstract;
+			_module = target as ModuleControlAbstract;
 
-			var partsType = _parts.PartsType();
+			var partsType = _module.PartsType();
 			if (partsType == null)
 				partsType = typeof(T);
 
@@ -100,15 +100,15 @@ namespace Yorozu
 				.Where(t => !t.IsAbstract && t.IsSubclassOf(partsType))
 				.ToArray();
 
-			_partsProperty = serializedObject.FindProperty("_parts");
+			_moduleProperty = serializedObject.FindProperty("_modules");
 
 			_componentInfos = new Dictionary<Type, TypeInfo>();
 			foreach (var type in _types)
 			{
-				if (_parts == null)
+				if (_module == null)
 					continue;
 
-				var component = (PartsAbstract) _parts.gameObject.GetComponent(type);
+				var component = (ModuleAbstract) _module.gameObject.GetComponent(type);
 				var info = new TypeInfo(type, component);
 				_componentInfos.Add(type, info);
 			}
@@ -135,14 +135,14 @@ namespace Yorozu
 			if (_types.IsNullOrEmpty())
 				return;
 
-			if (_partsProperty == null)
+			if (_moduleProperty == null)
 				return;
 
 			serializedObject.UpdateIfRequiredOrScript();
 			var iterator = serializedObject.GetIterator();
 			for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
 			{
-				if (iterator.displayName == "Parts")
+				if (iterator.displayName == "Modules")
 					continue;
 
 				using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath))
@@ -160,7 +160,7 @@ namespace Yorozu
 
 		private void DrawParts()
 		{
-			EditorGUILayout.LabelField("Parts");
+			EditorGUILayout.LabelField("Module");
 
 			foreach (var type in _types)
 				using (new GUILayout.VerticalScope("box"))
@@ -172,16 +172,16 @@ namespace Yorozu
 						{
 							serializedObject.Update();
 							_componentInfos[type]
-								.SetComponent(enable ? (PartsAbstract) _parts.gameObject.AddComponent(type) : null);
+								.SetComponent(enable ? (ModuleAbstract) _module.gameObject.AddComponent(type) : null);
 
-							_partsProperty.ClearArray();
+							_moduleProperty.ClearArray();
 							foreach (var pair in _componentInfos)
 							{
 								if (!pair.Value.HasComponent)
 									continue;
 
-								_partsProperty.InsertArrayElementAtIndex(_partsProperty.arraySize);
-								var element = _partsProperty.GetArrayElementAtIndex(_partsProperty.arraySize - 1);
+								_moduleProperty.InsertArrayElementAtIndex(_moduleProperty.arraySize);
+								var element = _moduleProperty.GetArrayElementAtIndex(_moduleProperty.arraySize - 1);
 								element.objectReferenceValue = pair.Value.Component;
 							}
 
@@ -192,8 +192,8 @@ namespace Yorozu
 					}
 
 					if (_componentInfos[type].IsOverrideMethod && _componentInfos[type].Index >= 0)
-						_componentInfos[type].Component.DrawEditor(_parts,
-							_partsProperty.GetArrayElementAtIndex(_componentInfos[type].Index));
+						_componentInfos[type].Component.DrawEditor(_module,
+							_moduleProperty.GetArrayElementAtIndex(_componentInfos[type].Index));
 					else
 						_componentInfos[type].Draw();
 				}
@@ -204,9 +204,9 @@ namespace Yorozu
 			foreach (var pair in _componentInfos)
 			{
 				pair.Value.Index = -1;
-				for (var i = 0; i < _partsProperty.arraySize; i++)
+				for (var i = 0; i < _moduleProperty.arraySize; i++)
 				{
-					var element = _partsProperty.GetArrayElementAtIndex(i).objectReferenceValue;
+					var element = _moduleProperty.GetArrayElementAtIndex(i).objectReferenceValue;
 
 					if (element == null)
 						continue;

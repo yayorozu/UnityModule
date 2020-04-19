@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Yorozu
 {
-	public abstract class PartsControlAbstract : MonoBehaviour
+	public abstract class ModuleControlAbstract : MonoBehaviour
 	{
 		[SerializeField]
-		protected PartsAbstract[] _parts = new PartsAbstract[0];
+		protected ModuleAbstract[] _modules = new ModuleAbstract[0];
 
 		/// <summary>
 		/// 制御できる class
@@ -22,17 +22,16 @@ namespace Yorozu
 		/// </summary>
 		public void SetUp()
 		{
-			foreach (var part in _parts)
+			foreach (var part in _modules)
 				part.SetUp(this);
 		}
 
-		public bool TryGetPart<T>(out T findPart) where T : PartsAbstract
+		public bool TryGetModule<T>(out T findPart) where T : ModuleAbstract
 		{
-			var data = _parts.First(p => p.GetType() == typeof(T));
+			var data = _modules.First(p => p.GetType() == typeof(T));
 			if (data == null)
 			{
 				findPart = null;
-
 				return false;
 			}
 
@@ -44,7 +43,7 @@ namespace Yorozu
 		private void Update()
 		{
 			OnUpdate();
-			foreach (var part in _parts)
+			foreach (var part in _modules)
 				part.UpdateFromOwner();
 		}
 

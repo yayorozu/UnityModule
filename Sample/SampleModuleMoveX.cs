@@ -2,17 +2,17 @@
 
 namespace Yorozu.Sample
 {
-	public class SamplePartsMoveY : SamplePartsAbstract
+	public class SampleModuleMoveX : SampleModuleAbstract
 	{
 		[SerializeField]
 		private int _value;
 		
-		private float _defaultY;
+		private float _defaultX;
 		private bool _isPong;
 
 		protected override void OnSetUp()
 		{
-			_defaultY = Owner.transform.localPosition.y;
+			_defaultX = Owner.transform.localPosition.x;
 		}
 
 		protected override void OnUpdate()
@@ -20,14 +20,14 @@ namespace Yorozu.Sample
 			var pos = Owner.transform.localPosition;
 			if (_isPong)
 			{
-				pos.y -= Time.deltaTime;
-				if (pos.y < _defaultY - _value)
+				pos.x -= Time.deltaTime;
+				if (pos.x < _defaultX - _value)
 					_isPong = !_isPong;
 			}
 			else
 			{
-				pos.y += Time.deltaTime;
-				if (pos.y > _defaultY + _value)
+				pos.x += Time.deltaTime;
+				if (pos.x > _defaultX + _value)
 					_isPong = !_isPong;
 			}
 

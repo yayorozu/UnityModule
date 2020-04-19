@@ -5,16 +5,16 @@ namespace Yorozu
 	/// <summary>
 	/// パーツのコンポーネント
 	/// </summary>
-	public abstract class PartsAbstract : MonoBehaviour
+	public abstract class ModuleAbstract : MonoBehaviour
 	{
-		private PartsControlAbstract _owner;
+		private ModuleControlAbstract _owner;
 
-		protected T GetController<T>() where T : PartsControlAbstract
+		protected T GetController<T>() where T : ModuleControlAbstract
 		{
 			return _owner as T;
 		}
 
-		public void SetUp(PartsControlAbstract owner)
+		public void SetUp(ModuleControlAbstract owner)
 		{
 			_owner = owner;
 			OnSetUp();
@@ -37,7 +37,7 @@ namespace Yorozu
 		/// <summary>
 		/// 必要なら override する
 		/// </summary>
-		public virtual void DrawEditor(PartsControlAbstract parts, UnityEditor.SerializedProperty property)
+		public virtual void DrawEditor(ModuleControlAbstract module, UnityEditor.SerializedProperty property)
 		{
 		}
 
