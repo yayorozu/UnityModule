@@ -161,7 +161,7 @@ namespace Yorozu
 
 		private void DrawParts()
 		{
-			EditorGUILayout.LabelField("Module");
+			EditorGUILayout.HelpBox("Module", MessageType.None);
 			
 			var count = _componentInfos.Count(ci => ci.Value.HasComponent);
 			// 数がおかしければ更新
