@@ -139,6 +139,7 @@ namespace Yorozu
 				return;
 
 			serializedObject.UpdateIfRequiredOrScript();
+			
 			var iterator = serializedObject.GetIterator();
 			for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
 			{
@@ -161,6 +162,29 @@ namespace Yorozu
 		private void DrawParts()
 		{
 			EditorGUILayout.LabelField("Module");
+			
+			var count = _componentInfos.Count(ci => ci.Value.HasComponent);
+			// 数がおかしければ更新
+			if (_moduleProperty.arraySize != count)
+			{
+				EditorGUILayout.HelpBox("Module Count Differ", MessageType.Error);
+				if (GUILayout.Button("Refresh"))
+				{
+					serializedObject.UpdateIfRequiredOrScript();
+					_moduleProperty.ClearArray();
+					foreach (var type in _types)
+					{
+						var component = (ModuleAbstract) _module.gameObject.GetComponent(type);
+						if (component == null)
+							continue;
+							
+						_moduleProperty.InsertArrayElementAtIndex(_moduleProperty.arraySize);
+						var element = _moduleProperty.GetArrayElementAtIndex(_moduleProperty.arraySize - 1);
+						element.objectReferenceValue = component;
+					}
+					serializedObject.ApplyModifiedProperties();
+				}
+			}
 
 			foreach (var type in _types)
 				using (new GUILayout.VerticalScope("box"))
