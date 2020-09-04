@@ -9,7 +9,7 @@ namespace Yorozu.Sample
 			SetUp();
 		}
 
-		public override Type PartsType()
+		public override Type ModuleType()
 		{
 			return typeof(SampleModuleAbstract);
 		}

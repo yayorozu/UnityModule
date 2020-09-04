@@ -1,11 +1,12 @@
-using UnityEngine;
+using System;
 
 namespace Yorozu
 {
 	/// <summary>
 	/// パーツのコンポーネント
 	/// </summary>
-	public abstract class ModuleAbstract : MonoBehaviour
+	[Serializable]
+	public abstract class ModuleAbstract
 	{
 		private ModuleControlAbstract _owner;
 
@@ -17,20 +18,20 @@ namespace Yorozu
 		public void SetUp(ModuleControlAbstract owner)
 		{
 			_owner = owner;
-			OnSetUp();
+			Prepare();
 		}
-
-		protected virtual void OnSetUp() { }
 
 		public void UpdateFromOwner()
 		{
 			if (_owner == null)
 				return;
 
-			OnUpdate();
+			Update();
 		}
 
-		protected virtual void OnUpdate() { }
+		protected virtual void Prepare() { }
+
+		protected virtual void Update() { }
 
 #if UNITY_EDITOR
 
@@ -40,14 +41,6 @@ namespace Yorozu
 		public virtual void DrawEditor(ModuleControlAbstract module, UnityEditor.SerializedProperty property)
 		{
 		}
-
-		private void OnValidate()
-		{
-			hideFlags = HideFlags.HideInInspector;
-			OnValidated();
-		}
-
-		protected virtual void OnValidated() { }
 
 #endif
 	}

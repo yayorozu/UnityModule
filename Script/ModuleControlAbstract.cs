@@ -6,13 +6,19 @@ namespace Yorozu
 {
 	public abstract class ModuleControlAbstract : MonoBehaviour
 	{
-		[SerializeField]
-		protected ModuleAbstract[] _modules = new ModuleAbstract[0];
+		[SerializeReference]
+		private ModuleAbstract[] _modules = new ModuleAbstract[0];
 
-		/// <summary>
-		/// 制御できる class
-		/// </summary>
-		public virtual Type PartsType()
+#if UNITY_EDITOR
+
+		internal ModuleAbstract[] Modules
+		{
+			get => _modules;
+			set => _modules = value;
+		}
+#endif
+
+		public virtual Type ModuleType()
 		{
 			return null;
 		}
@@ -22,8 +28,14 @@ namespace Yorozu
 		/// </summary>
 		public void SetUp()
 		{
-			foreach (var part in _modules)
-				part.SetUp(this);
+			foreach (var module in _modules)
+				module.SetUp(this);
+		}
+
+		protected virtual void Update()
+		{
+			foreach (var module in _modules)
+				module.UpdateFromOwner();
 		}
 
 		public bool TryGetModule<T>(out T findPart) where T : ModuleAbstract
@@ -38,17 +50,6 @@ namespace Yorozu
 			findPart = data as T;
 
 			return true;
-		}
-
-		private void Update()
-		{
-			OnUpdate();
-			foreach (var part in _modules)
-				part.UpdateFromOwner();
-		}
-
-		protected virtual void OnUpdate()
-		{
 		}
 	}
 }
