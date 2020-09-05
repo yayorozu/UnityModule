@@ -36,21 +36,26 @@ namespace Yorozu
 			{
 				_type = type;
 				_owner = owner;
-				_index = -1;
 
-				for (var i = 0; i < _owner._base.Modules.Length; i++)
-				{
-					if (owner._base.Modules[i].GetType() != _type)
-						continue;
-
-					_index = i;
-				}
+				UpdateIndex();
 
 				var method = type.GetMethod("DrawEditor", BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
 				if (method == null)
 					IsOverrideMethod = false;
 				else
 					IsOverrideMethod = method == method.GetBaseDefinition();
+			}
+
+			public void UpdateIndex()
+			{
+				_index = -1;
+				for (var i = 0; i < _owner._base.Modules.Length; i++)
+				{
+					if (_owner._base.Modules[i].GetType() != _type)
+						continue;
+
+					_index = i;
+				}
 			}
 
 			public void Add()
@@ -67,7 +72,6 @@ namespace Yorozu
 				ArrayUtility.RemoveAt(ref m, _index);
 				_owner._base.Modules = m;
 				_index = -1;
-				GUIUtility.ExitGUI();
 			}
 
 			public void Draw()
@@ -82,11 +86,11 @@ namespace Yorozu
 
 			private void DrawProperty(SerializedProperty property)
 			{
-				var depth = -1;
+				var depth = property.depth;
 				var iterator = property.Copy();
-				for (var enterChildren = true; iterator.NextVisible(enterChildren) || depth == -1; enterChildren = false)
+				for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
 				{
-					if (depth != -1 && iterator.depth != depth)
+					if (iterator.depth < depth)
 						return;
 
 					depth = iterator.depth;
@@ -169,12 +173,16 @@ namespace Yorozu
 						if (check.changed)
 						{
 							serializedObject.Update();
-							// Remove
+							var m = _base.Modules;
 							if (_componentInfos[type].HasComponent)
-								_componentInfos[type].Remove();
-							// Add
+								ArrayUtility.RemoveAt(ref m, _componentInfos[type].Index);
 							else
-								_componentInfos[type].Add();
+								ArrayUtility.Add(ref m, (T) Activator.CreateInstance(type));
+
+							_base.Modules = m;
+
+							foreach (var pair in _componentInfos)
+								pair.Value.UpdateIndex();
 
 							serializedObject.ApplyModifiedProperties();
 							GUIUtility.ExitGUI();
@@ -191,7 +199,7 @@ namespace Yorozu
 		private static void ToggleFoldout(string label, bool foldout)
 		{
 			var rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth, 18);
-			var enable = GUI.Toggle(rect, foldout, new GUIContent(label), new GUIStyle("ShurikenModuleTitle"));
+			GUI.Toggle(rect, foldout, new GUIContent(label), new GUIStyle("ShurikenModuleTitle"));
 			rect.y -= 1;
 			rect.x += 1;
 			GUI.Toggle(rect, foldout, GUIContent.none, EditorStyles.toggle);
