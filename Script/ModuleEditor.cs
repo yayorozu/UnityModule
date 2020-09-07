@@ -86,6 +86,9 @@ namespace Yorozu
 
 			private void DrawProperty(SerializedProperty property)
 			{
+				if (!property.hasVisibleChildren)
+					return;
+
 				var depth = property.depth;
 				var iterator = property.Copy();
 				for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
