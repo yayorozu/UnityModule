@@ -1,0 +1,14 @@
+{
+  "name": "yorozu.module",
+  "version": "1.0.0",
+  "displayName": "Yorozu Module",
+  "description": "",
+  "keywords": [
+    "Yorozu"
+  ],
+  "author": {
+    "name": "Yorozu",
+    "email": "hatch.tech.eng@gmail.com",
+    "url": "https://github.com/yayorozu"
+  }
+}
